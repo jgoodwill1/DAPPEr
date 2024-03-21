@@ -10,7 +10,7 @@ from scipy.optimize import curve_fit
 '''
 def generate_fit(x, y):
 Generates fit of linear and sqrt portion of IV arrays. Refer to
-data_processing to idenify filtering of IV arrays. scipy.optimize.curve_fit
+data_processing to find processing of IV arrays. scipy.optimize.curve_fit
 used to fit non-linear least squares to fit
 
 input:
