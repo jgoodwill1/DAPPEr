@@ -16,6 +16,7 @@ used to fit non-linear least squares to fit
 input:
 V_arr (array); Voltage array
 I_arr (array); Current array
+proc* (boolean); Whether to process the arrays for better fitting
 
 output:
 V_fit (np.array); linear space between min and max voltages from V_arr
@@ -28,9 +29,9 @@ popt(array); optimal values for parameters
 pcov(2D np.array); covariance of popt array
 '''
 
-def gen_fit(V_arr, I_arr):
-    # V_proc, I_proc = data_processing(V_arr, I_arr)
-    V_proc, I_proc = (V_arr[V_arr < 4], I_arr[V_arr < 4])
+def gen_fit(V_arr, I_arr, proc = False):
+    if proc == True:
+        V_proc, I_proc = data_processing(V_arr, I_arr)
     guess = [0.6,-14,80, 5*(10**10),1000,-0.5]    #intial guess
     b = ((-3,-np.inf,-np.inf,0,0,-3),(3,np.inf,np.inf,np.inf,10000,3)) #bounds
     popt, pcov = curve_fit(model, V_proc, I_proc, guess, bounds = b)
@@ -113,6 +114,7 @@ def data_processing(V, I):
     I_proc = I[V_rem]
     return V_proc, I_proc
 
+
 def remove_outliers(time, temp, density): #finds and removes outliers
     ind_low_t = np.where(np.array(temp) < 0) #finds negative temperatures
     ind_high_t = np.where(np.array(temp) > 3 * np.percentile(temp,95)) #finds temperatures more than triple the 95 percentile
@@ -123,127 +125,3 @@ def remove_outliers(time, temp, density): #finds and removes outliers
     temp_n = np.delete(temp,ind_rem)
     density_n = np.delete(density,ind_rem)
     return time_n,temp_n,density_n
-
-def findIndexs(mypackets): #find indexs of various packet types
-    sensor = []
-    medium = []
-    large = []
-    burst = []
-    i = 0
-    #pcktType
-    typeSens = 0x01
-    typeMed = 0x10
-    typeLrg = 0x11
-    typeBrst = 0x20
-
-    for obj in mypackets:
-        if(obj.pcktType == typeSens):
-            sensor.append(i)
-        elif(obj.pcktType == typeMed):
-            medium.append(i)
-        elif(obj.pcktType == typeLrg):
-            large.append(i)
-        elif(obj.pcktType == typeBrst):
-            burst.append(i)
-        i=i+1
-    return sensor, medium, large, burst
-
-def ft_to_km(ft): #feet to kilometers
-    return 1.609 * ft / 5280
-
-def ascent_desent(h_func,t): #seperate out the ascent and descent parts of the flight
-    h = []
-    for i in t:
-        h.append(ft_to_km(h_func(i/1000))) #function expects time in sec t in ms
-    max_h = np.argmax(h) #get index of max height
-    return t,h,max_h
-
-def order_merge_3(time,data):#merges 3 arrays together in ascending time, keeps data with time
-    n1 = len(time[0])
-    n2 = len(time[1])
-    n3 = len(time[2])
-    ret_time = [None] * (n1 + n2 + n3)
-    ret_data = [None] * (n1 + n2 + n3)
-    i1 = 0
-    i2 = 0
-    i3 = 0
-    k = 0
-    while (i1 < n1 and i2 < n2 and i3 < n3):
-        if (time[0][i1] > time[1][i2]):
-            if (time[1][i2] > time[2][i3]):
-                ret_time[k] = time[2][i3]
-                ret_data[k] = data[2][i3]
-                k = k + 1
-                i3 = i3 + 1
-            else:
-                ret_time[k] = time[1][i2]
-                ret_data[k] = data[1][i2]
-                k = k + 1
-                i2 = i2 + 1
-        else:
-            if (time[0][i1] > time[2][i3]):
-                ret_time[k] = time[2][i3]
-                ret_data[k] = data[2][i3]
-                k = k + 1
-                i3 = i3 + 1
-            else:
-                ret_time[k] = time[0][i1]
-                ret_data[k] = data[0][i1]
-                k = k + 1
-                i1 = i1 + 1
-    while (i1 < n1 and i2 < n2):
-        if (time[0][i1] > time[1][i2]):
-            ret_time[k] = time[1][i2]
-            ret_data[k] = data[1][i2]
-            k = k + 1
-            i2 = i2 + 1
-        else:
-            ret_time[k] = time[0][i1]
-            ret_data[k] = data[0][i1]
-            k = k + 1
-            i1 = i1 + 1
-    while (i1 < n1 and i3 < n3):
-        if (time[0][i1] > time[2][i3]):
-            ret_time[k] = time[2][i3]
-            ret_data[k] = data[2][i3]
-            k = k + 1
-            i3 = i3 + 1
-        else:
-            ret_time[k] = time[0][i1]
-            ret_data[k] = data[0][i1]
-            k = k + 1
-            i1 = i1 + 1
-    while (i3 < n3 and i2 < n2):
-        if (time[2][i3] > time[1][i2]):
-            ret_time[k] = time[1][i2]
-            ret_data[k] = data[1][i2]
-            k = k + 1
-            i2 = i2 + 1
-        else:
-            ret_time[k] = time[2][i3]
-            ret_data[k] = data[2][i3]
-            k = k + 1
-            i3 = i3 + 1
-    while (i1 < n1):
-        ret_time[k] = time[0][i1]
-        ret_data[k] = data[0][i1]
-        k = k + 1
-        i1 = i1 + 1
-    while (i2 < n2):
-        ret_time[k] = time[1][i2]
-        ret_data[k] = data[1][i2]
-        k = k + 1
-        i2 = i2 + 1
-    while (i3 < n3):
-        ret_time[k] = time[2][i3]
-        ret_data[k] = data[2][i3]
-        k = k + 1
-        i3 = i3 + 1
-    return ret_time,ret_data #returns sorted and merged list of data
-
-
-
-
-def main():
-    print('hello')
-    return
