@@ -1,5 +1,5 @@
 """
-Created on July 31 12:53:14 2021
+Created on March 25, 2023
 
 @author: Josh Goodwill
 """
@@ -8,9 +8,9 @@ import numpy as np
 from scipy.optimize import curve_fit
 
 '''
-def generate_fit(x, y):
+def gen_fit(x, y):
 Generates fit of linear and sqrt portion of IV arrays. Refer to
-data_processing to find processing of IV arrays. scipy.optimize.curve_fit
+data_processing to idenify filtering of IV arrays. scipy.optimize.curve_fit
 used to fit non-linear least squares to fit
 
 input:
@@ -89,21 +89,29 @@ def sqrt_fit(x, ne, etemp, VP):# square root
     return I0 * np.sqrt(1. + k*(x + VP))
 
 '''
-def data_processing()
+def data_processing(V, I)
+Processes Voltage and Current arrays to reduce points for fitting algorithm.
+Removes Voltage below -3 V and above first max of Current array
+
+input:
+V (np.array); Normal Voltage array
+I (np.array); Normal Current array
+
+output:
+V_proc (np.array); processed Voltage array
+I_proc (np.array); processed Current array
 '''
 
-def data_processing(x_raw,y_raw):#remove data points below -2 and above the peak to reduce datapoints going to the fitting routine
-    max_ind = np.argmax(y_raw) #find index of maximum y
-    if (max_ind.size != 1):
-        min_max_val = np.argmin(x_raw[max_ind]) #find minimum x of max y
+def data_processing(V, I):
+    Imax = np.argmax(I) #find index of maximum Current
+    if (Imax.size != 1):
+        Vmin_Imax = np.argmin(V[Imax]) #find lowest voltage value with max current
     else:
-        min_max_val = max_ind
-    ind_high = np.where(x_raw > x_raw[min_max_val] + 0.1) # find indexs of x greater than 0.1 more than max y
-    ind_low = np.where(x_raw < 0) #find indexs of x less than 0
-    ind_rem = np.concatenate((ind_high,ind_low),axis=None)
-    x = np.delete(x_raw,ind_rem) #remove from x
-    y = np.delete(y_raw,ind_rem) #remove from y
-    return x,y
+        Vmin_Imax = Imax
+    V_rem = (V > -3) & (V < V[Vmin_Imax]) #array of voltages > -3V and < Vmin_Imax
+    V_proc = V[V_rem]
+    I_proc = I[V_rem]
+    return V_proc, I_proc
 
 def remove_outliers(time, temp, density): #finds and removes outliers
     ind_low_t = np.where(np.array(temp) < 0) #finds negative temperatures
