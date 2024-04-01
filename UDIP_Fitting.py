@@ -40,15 +40,8 @@ def gen_fit(V_arr, I_arr, proc = False):
         V_proc, I_proc = data_processing(V_arr, I_arr)
     else:
         V_proc, I_proc = V_arr, I_arr
-    # guess = [0, 0, 0, 0, 0, 0]
-    # guess = [0.6, 0 , 0, 5*(10**10),1000,-0.5]    #intial guess
-    # print(b)
-    # b = ((-3,-np.inf,-np.inf,0),(3,np.inf,np.inf,np.inf))
-    # b = ((-1,-1000,-1000,0 ,0, 0 ),(1,1000,1000,np.inf, np.inf,1)) #bounds
     guess = [0.6, 100, 80, 8*(10**10), 1000,-0.5]    #intial guess
     b = ((0,-100,-100,0,0,-3),(3,100,100,np.inf,10000,3)) #bounds
-    # b = ((-3, -3, -3, -3, -3, -3),(1, 1, 1, 1, 1, 1)) #bounds
-    # popt, pcov = curve_fit(model, V_proc, I_proc)
     popt, pcov = curve_fit(model, V_proc, I_proc, guess, bounds = b)
     V_fit = np.linspace(min(V_proc),max(V_proc), num = 200) #Voltage array processed for fit
     return V_fit, model(V_fit,*popt), popt, pcov
