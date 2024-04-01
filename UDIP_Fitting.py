@@ -23,20 +23,35 @@ V_fit (np.array); linear space between min and max voltages from V_arr
 model(t, *popt) (np.array); fitted model of I_arr using Voltage range and 
                             pointer to popt
 popt(array); optimal values for parameters
-  V_f = popt[0]; Plasma potential
-  I_p = popt[1]; Current at Floating 
+  V_f  (float) = popt[0]; Plasma potential
+  m1   (float) = popt[1]; slope of linear fit
+  b    (float) = popt[2]  (float); y-intercept of linear fit
+  ne   (float) = popt[3]; electron density [cm^{-3}]
+  etemp(float) = popt[4]; electron temperature [K]
+  VP   (float) = popt[5]; negative plasma potential [V]
   
 pcov(2D np.array); covariance of popt array
 '''
 
 def gen_fit(V_arr, I_arr, proc = False):
+    V_proc = []
+    I_proc = []
     if proc == True:
         V_proc, I_proc = data_processing(V_arr, I_arr)
-    guess = [0.6,-14,80, 5*(10**10),1000,-0.5]    #intial guess
-    b = ((-3,-np.inf,-np.inf,0,0,-3),(3,np.inf,np.inf,np.inf,10000,3)) #bounds
+    else:
+        V_proc, I_proc = V_arr, I_arr
+    # guess = [0, 0, 0, 0, 0, 0]
+    # guess = [0.6, 0 , 0, 5*(10**10),1000,-0.5]    #intial guess
+    # print(b)
+    # b = ((-3,-np.inf,-np.inf,0),(3,np.inf,np.inf,np.inf))
+    # b = ((-1,-1000,-1000,0 ,0, 0 ),(1,1000,1000,np.inf, np.inf,1)) #bounds
+    guess = [0.6, 100, 80, 8*(10**10), 1000,-0.5]    #intial guess
+    b = ((0,-100,-100,0,0,-3),(3,100,100,np.inf,10000,3)) #bounds
+    # b = ((-3, -3, -3, -3, -3, -3),(1, 1, 1, 1, 1, 1)) #bounds
+    # popt, pcov = curve_fit(model, V_proc, I_proc)
     popt, pcov = curve_fit(model, V_proc, I_proc, guess, bounds = b)
-    V_fit = np.linspace(min(V_proc),max(V_proc), num = 50) #Voltage array processed for fit
-    return V_fit, model(V_fit,*popt), popt, pcov, V_proc, I_proc
+    V_fit = np.linspace(min(V_proc),max(V_proc), num = 200) #Voltage array processed for fit
+    return V_fit, model(V_fit,*popt), popt, pcov
 
 '''
 def model(V_proc, VP, m1, b, ne, etemp, V0):
@@ -113,15 +128,3 @@ def data_processing(V, I):
     V_proc = V[V_rem]
     I_proc = I[V_rem]
     return V_proc, I_proc
-
-
-def remove_outliers(time, temp, density): #finds and removes outliers
-    ind_low_t = np.where(np.array(temp) < 0) #finds negative temperatures
-    ind_high_t = np.where(np.array(temp) > 3 * np.percentile(temp,95)) #finds temperatures more than triple the 95 percentile
-    ind_low_d = np.where(np.array(density) < 0) #finds negative density
-    ind_high_d = np.where(np.array(density) > 3 * np.percentile(density,95)) #finds densities more than triple the 95 percentile
-    ind_rem = np.unique(np.concatenate((ind_high_t,ind_low_t,ind_low_d,ind_high_d),axis=None))
-    time_n = np.delete(time,ind_rem)
-    temp_n = np.delete(temp,ind_rem)
-    density_n = np.delete(density,ind_rem)
-    return time_n,temp_n,density_n
