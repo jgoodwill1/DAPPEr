@@ -41,7 +41,7 @@ def gen_fit(V_arr, I_arr, proc = False):
     else:
         V_proc, I_proc = V_arr, I_arr
     guess = [0.6, 100, 80, 8*(10**10), 1000,-0.5]    #intial guess
-    b = ((0,-100,-100,0,0,-3),(3,100,100,np.inf,10000,3)) #bounds
+    b = ((0,-1000,-100,0,0,-3),(3,1000,100,np.inf,10000,3)) #bounds
     popt, pcov = curve_fit(model, V_proc, I_proc, guess, bounds = b)
     V_fit = np.linspace(min(V_proc),max(V_proc), num = 200) #Voltage array processed for fit
     return V_fit, model(V_fit,*popt), popt, pcov
