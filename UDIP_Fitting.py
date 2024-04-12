@@ -10,6 +10,9 @@ from scipy.optimize import curve_fit
 import numpy as np
 from scipy.optimize import curve_fit
 
+import numpy as np
+from scipy.optimize import curve_fit
+
 '''
 def gen_fit(x, y):
 Generates fit of linear and sqrt portion of IV arrays. Refer to
@@ -54,15 +57,15 @@ def gen_fit(V_arr, I_arr, proc = False):
         V_proc, I_proc = data_processing(V_arr, I_arr)
     else:
         V_proc, I_proc = V_arr, I_arr
-    guess = [0.3, 100, 80,  5,  8*(10**10), 1000, 0.9]    #intial guess
-    b = ((0,-1000,-100, 0, 0, 0, 0.5),(0.5,1000,100, 100, np.inf,10000,1.5)) #bounds
+    guess = [0.3, 0.9, 100, 80,  2,  8*(10**10), 1000]    #intial guess
+    b = ((0, 0.5, -1000,-100, 0, 0, 0),(0.5, 1.5, 1000,100, 100, np.inf,10000)) #bounds
 
     # guess = [0.5, 100, 80, 1000, 0.5, 1]    #intial guess
     # b = ((0, -1000, -100, 0, 0, 0.5),(1, 1000, 100, 10000, 100, 3)) #bounds
 
     popt, pcov = curve_fit(model, V_proc, I_proc, guess, bounds = b)
     # popt, pcov = curve_fit(model, V_proc, I_proc)
-    V_fit = np.linspace(min(V_proc),max(V_proc), num = 500) #Voltage array processed for fit
+    V_fit = np.linspace(min(V_proc),max(V_proc), num = 300) #Voltage array processed for fit
     return V_fit, model(V_fit,*popt), popt, pcov
 
 '''
@@ -79,7 +82,7 @@ etemp(float); electron temperature [K]
 VP (float); plasma potential [V]
 '''
 
-def model(V_proc, Vf, m1, b, a, ne, etemp, VP):
+def model(V_proc, Vf, VP, m1, b, a, ne, etemp):
     I_fit = np.zeros(len(V_proc))
     #Linear fit for ion saturation
     I_fit[V_proc <= Vf] = lin_fit(V_proc[V_proc <= Vf], m1, b)
