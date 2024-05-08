@@ -7,12 +7,6 @@ Created on March 25, 2023
 import numpy as np
 from scipy.optimize import curve_fit
 
-import numpy as np
-from scipy.optimize import curve_fit
-
-import numpy as np
-from scipy.optimize import curve_fit
-
 '''
 def gen_fit(x, y):
 Generates fit of linear and sqrt portion of IV arrays. Refer to
