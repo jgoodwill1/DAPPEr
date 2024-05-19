@@ -416,7 +416,7 @@ class Sweep():
     def fillVals(self):
         """Unpacks the DAC voltage and three ADC values"""
         for i in range(self.nSteps):
-            arr = unpack('<HHHH', self.pyld[(4*2*i) + 4: (4*2*i + 8) + 4])
+            arr = unpack('<HHHH', self.pyld[(4*2*i) + 4 + 4: (4*2*i + 8) + 4 + 4])
             self.adcDACVal[i] = arr[0] / self.nAvg
             #print(arr[0])
             self.adc0Val[i] = arr[1] / self.nAvg
@@ -806,20 +806,25 @@ def findIndexs(mypackets): #find indexs of various packet types
 #    print(round(pckts[0].sweep.sweepVoltage[i], 2))
 
 
-packets = readFile('UDIP84.dat')
+packets = readFile('UDIP86.dat')
 sensorIndex, fullIndex, denseIndex = findIndexs(packets)
 
 sweep1 = packets[fullIndex[3]].sweep
 dacVal = sweep1.adcDACVal
+swpVolt = sweep1.sweepVoltage
 
 sweep2 = packets[denseIndex[0]].sweep
 dacVal_2 = sweep2.adcDACVal
+swpVolt2 = sweep2.sweepVoltage
 
 print(f'dacVal (full) = {dacVal}')
 print()
 print(f'dacVal (dense) = {dacVal_2}')
 
+print(f'sweepVoltage (full) = {swpVolt}')
+print()
+print(f'sweepVoltage (dense) = {swpVolt2}')
+
 # for i in range(len(dacVal)):
 #     if(dacVal[i] == dacVal_2[i]):
 #         print('God has forsaken us!!!')
-
