@@ -3,7 +3,7 @@
 Created on Sat Apr 25 20:35:53 2020
 Class definitions for Reading Packets from University of Delaware Ionosphere
 Probe RockSat-C 2020 Mission
-Last updated 24/05/13
+Last updated 2024/05/20
 @author: Jarod Dagney
         Jarrod Bieber
 """
@@ -168,27 +168,31 @@ class Sensor_Packet(Packet):
         
     def calibrateDigAcc(self):
         """Calibrates the acceleration and stores it in respective class attributes in g"""
-        if(self.accScale == 2):
-            self.accX = self.accMed[0] * self.SENSITIVITY_ACCELEROMETER_2
-            self.accY = self.accMed[1] * self.SENSITIVITY_ACCELEROMETER_2
-            self.accZ = self.accMed[2] * self.SENSITIVITY_ACCELEROMETER_2
-        elif(self.accScale == 4):
-            self.accX = self.accMed[0] * self.SENSITIVITY_ACCELEROMETER_4
-            self.accY = self.accMed[1] * self.SENSITIVITY_ACCELEROMETER_4
-            self.accZ = self.accMed[2] * self.SENSITIVITY_ACCELEROMETER_4
-        elif(self.accScale == 8):
-            self.accX = self.accMed[0] * self.SENSITIVITY_ACCELEROMETER_8
-            self.accY = self.accMed[1] * self.SENSITIVITY_ACCELEROMETER_8
-            self.accZ = self.accMed[2] * self.SENSITIVITY_ACCELEROMETER_8
-        elif(self.accScale == 16):
-            self.accX = self.accMed[0] * self.SENSITIVITY_ACCELEROMETER_16
-            self.accY = self.accMed[1] * self.SENSITIVITY_ACCELEROMETER_16
-            self.accZ = self.accMed[2] * self.SENSITIVITY_ACCELEROMETER_16
-        else:
-            #Not valid accel scale
-            self.accX = 0;
-            self.accY = 0;
-            self.accZ = 0;
+        # if(self.accScale == 2):
+        #     self.accX = self.accMed[0] * self.SENSITIVITY_ACCELEROMETER_2
+        #     self.accY = self.accMed[1] * self.SENSITIVITY_ACCELEROMETER_2
+        #     self.accZ = self.accMed[2] * self.SENSITIVITY_ACCELEROMETER_2
+        # elif(self.accScale == 4):
+        #     self.accX = self.accMed[0] * self.SENSITIVITY_ACCELEROMETER_4
+        #     self.accY = self.accMed[1] * self.SENSITIVITY_ACCELEROMETER_4
+        #     self.accZ = self.accMed[2] * self.SENSITIVITY_ACCELEROMETER_4
+        # elif(self.accScale == 8):
+        #     self.accX = self.accMed[0] * self.SENSITIVITY_ACCELEROMETER_8
+        #     self.accY = self.accMed[1] * self.SENSITIVITY_ACCELEROMETER_8
+        #     self.accZ = self.accMed[2] * self.SENSITIVITY_ACCELEROMETER_8
+        # elif(self.accScale == 16):
+        #     self.accX = self.accMed[0] * self.SENSITIVITY_ACCELEROMETER_16
+        #     self.accY = self.accMed[1] * self.SENSITIVITY_ACCELEROMETER_16
+        #     self.accZ = self.accMed[2] * self.SENSITIVITY_ACCELEROMETER_16
+        # else:
+        #     #Not valid accel scale
+        #     self.accX = 0;
+        #     self.accY = 0;
+        #     self.accZ = 0;
+
+        self.accX = self.accMed[0] * self.SENSITIVITY_ACCELEROMETER_16
+        self.accY = self.accMed[1] * self.SENSITIVITY_ACCELEROMETER_16
+        self.accZ = self.accMed[2] * self.SENSITIVITY_ACCELEROMETER_16
             
         
     
@@ -327,7 +331,7 @@ class Sweep():
     nStepsFull = 256  # New for UDIP 4
     nStepsHiDens = 256  # New for UDIP 4
     
-    nAvg = 1.0  # 2.0? 10.0? 4.0? 1.0?
+    nAvg = 4.0  # 2.0? 10.0? 4.0? 1.0?
 
     # No Longer Used to get Current in Transfer Functions
     R1 = 10000.0
@@ -429,7 +433,7 @@ class Sweep():
     
     def fillVolt(self):
         """Converts a value from ADC to the voltage"""
-        conv = 5.0 / 4095  # 3.3 / 4095.  # need new conversion factor - 5.0 / 1023 ?
+        conv = 5.0 / 1023  # 5.0 / 4095.  # need new conversion factor - 5.0 / 1023 ?
         for i in range(self.nSteps):
             self.adcDACVolt[i] = self.adcDACVal[i] * conv
             self.adc0Volt[i] = self.adc0Val[i] * conv
@@ -489,6 +493,7 @@ def readFile(fileName):
     myPackets = []
     myFile = open(fileName,"rb")
     raw = myFile.read()
+    #raw = [:
     loc = 0
     i = 0
     while(loc < len(raw)):
@@ -517,27 +522,27 @@ def readFile(fileName):
                 packet = Sensor_Packet(count, tInitial, tFinal, pcktType, pyldLen, raw[(loc+lenHedr) : (loc+lenHedr+pyldLen)] )
                 myPackets.append(packet)
             elif(pcktType == typeFull_Rckt):
-                #input(f'Packet type Full - Rocket')
-                #print(f'Packet {i}:')
-                #print(f'loc = {loc}')
+                print(f'Packet type Full - Rocket')
+                print(f'Packet {i}:')
+                print(f'loc = {loc}')
                 packet = Full_Sweep(count, tInitial, tFinal, pcktType, pyldLen, 0, raw[(loc+lenHedr) : (loc+lenHedr+pyldLen)])
                 myPackets.append(packet)
             elif(pcktType == typeFull_Probe):
-                #input(f'Packet type Full')
-                #print(f'Packet {i}:')
-                #print(f'loc = {loc}')
+                print(f'Packet type Full')
+                print(f'Packet {i}:')
+                print(f'loc = {loc}')
                 packet = Full_Sweep(count, tInitial, tFinal, pcktType, pyldLen, 1, raw[(loc + lenHedr): (loc + lenHedr + pyldLen)])
                 myPackets.append(packet)
             elif (pcktType == typeDens_Rckt):
-                #input(f'Packet type Dense - Rocket')
-                #print(f'Packet {i}:')
-                #print(f'loc = {loc}')
+                print(f'Packet type Dense - Rocket')
+                print(f'Packet {i}:')
+                print(f'loc = {loc}')
                 packet = Dense_Sweep(count, tInitial, tFinal, pcktType, pyldLen, 0, raw[(loc + lenHedr): (loc + lenHedr + pyldLen)])
                 myPackets.append(packet)
             elif (pcktType == typeDens_Probe):
-                #input(f'Packet type Dense')
-                #print(f'Packet {i}:')
-                #print(f'loc = {loc}')
+                print(f'Packet type Dense')
+                print(f'Packet {i}:')
+                print(f'loc = {loc}')
                 packet = Dense_Sweep(count, tInitial, tFinal, pcktType, pyldLen, 1, raw[(loc + lenHedr): (loc + lenHedr + pyldLen)])
                 myPackets.append(packet)
             elif(pcktType == typeMed):
@@ -806,7 +811,7 @@ def findIndexs(mypackets): #find indexs of various packet types
 #    print(round(pckts[0].sweep.sweepVoltage[i], 2))
 
 
-packets = readFile('UDIP86.dat')
+packets = readFile('UDIP100.dat')
 sensorIndex, fullIndex, denseIndex = findIndexs(packets)
 
 sweep1 = packets[fullIndex[3]].sweep

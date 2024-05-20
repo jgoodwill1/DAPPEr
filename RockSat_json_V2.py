@@ -44,13 +44,14 @@ def export_data():
         Current2 - a list of measured currents from the 2 gain stage
     '''
     #mypackets = UDIP_Lib.readFile("UDIP0016.DAT")
-    mypackets = UDIP_Lib.readFile("UDIP84.DAT")  # Update this file name
+    mypackets = UDIP_Lib.readFile("UDIP106.DAT")  # Update this file name
     #ind_sensor, ind_med, ind_large, ind_burst = findIndexs(mypackets)
     ind_sensor, ind_full, ind_dense = findIndexs(mypackets)
 
     #json_obj = { "packets" : {"Sensor" : {}, "Medium" : {}, "Large" : {}, "Burst" : {}} }
     json_obj = {"packets": {"Sensor": {}, "Full": {}, "Dense": {}}}
     print("Adding sensor packets")
+    print(f'Index Sensor Length = {len(ind_sensor)}')
     for i in range(len(ind_sensor)):
         pckt = mypackets[ind_sensor[i]]
         json_obj["packets"]["Sensor"][i] = {'Start': pckt.tInitial, 'Stop': pckt.tFinal, 'Count': pckt.count,
@@ -121,7 +122,7 @@ def export_data():
 #        for j in range(10):
 #            json_obj["packets"]["Burst"][i][j] = {'Start' : pckt.tInitial, 'Stop' : pckt.tFinal, 'Count' : pckt.count, 'Voltage' : pckt.sweepArray[j].sweepVoltage.tolist(),
 #                                                'Current0' : pckt.sweepArray[j].adc0Curr.tolist(), 'Current1' : pckt.sweepArray[j].adc1Curr.tolist(), 'Current2' : pckt.sweepArray[j].adc2Curr.tolist() }
-    json_fileName = "2024_packet_3.json"
+    json_fileName = "2024_packet_6.json"
 
     json_file = open(json_fileName, 'w')
     json.dump(json_obj, json_file, indent=1)
