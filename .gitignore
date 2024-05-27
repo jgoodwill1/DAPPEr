@@ -1,6 +1,7 @@
 
-# ignore all .json files
+# ignore all .dat and .json files
 *.json
+*.dat
 
 # ignore ALL files in ANY directory named temp
 temp/

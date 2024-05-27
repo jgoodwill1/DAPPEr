@@ -351,7 +351,8 @@ class Sweep():
     #RS2 = 49900.0
     
     #vPos Voltage Divider Resistors
-    RP1 = 49900.0
+    #RP1 = 49900.0
+    RP1 = 20000.0
     RP2 = 10000.0
     
     #vNeg Voltage Divider Resistors
@@ -378,7 +379,10 @@ class Sweep():
         # Get new equation from Ranyah
         # Sample 16 times(?), then formula
         #self.vPos = (self.vPosVal / 16.0) * (3.3 / 4096.0) * (self.RP1 + self.RP2) / self.RP2
-        self.vPos = (self.vPosVal / 3.0)
+        #self.vPos = (self.vPosVal / 3.0)
+        #self.vPos = (self.vPosVal / self.nAvg) * (4.75 / 1023) * (self.RP1 + self.RP2) / self.RP2
+        self.vPos = (self.vPosVal / self.nAvg) * (4.0 / 1023) * (self.RP1 + self.RP2) / self.RP2
+        #self.vPos = (self.vPosVal / self.nAvg) * (5.0 / 1023) * (self.RP1 + self.RP2) / self.RP2
         # Get new equation from Ranyah
         #self.vNeg = (self.RN1 + self.RN2) / self.RN1 * ( ( (self.vNegVal / 16.0) * (3.3 / 4096.0) ) - (self.vPos ) * (self.RN2 / (self.RN1 + self.RN2)))
         self.vNeg = - (self.vNegVal / 3.0)
@@ -433,7 +437,7 @@ class Sweep():
     
     def fillVolt(self):
         """Converts a value from ADC to the voltage"""
-        conv = 5.0 / 1023  # 5.0 / 4095.  # need new conversion factor - 5.0 / 1023 ?
+        conv = 4.0 / 1023  # 5.0 / 4095.  # need new conversion factor - 5.0 / 1023, 4.76 / 1023, 4.0 / 1023
         for i in range(self.nSteps):
             self.adcDACVolt[i] = self.adcDACVal[i] * conv
             self.adc0Volt[i] = self.adc0Val[i] * conv
@@ -451,9 +455,18 @@ class Sweep():
             #self.adc0Curr[i] = (1/self.RF) * ((self.R1+self.R2)/self.R2) * ( ((self.R4+self.R3)/self.R4) * self.adc0Volt[i] - (self.R1/(self.R1+self.R2)) * self.vPos ) * ((self.RG1/(self.RG1+self.RG2))**0) * 1E9
             #self.adc1Curr[i] = (1/self.RF) * ((self.R1+self.R2)/self.R2) * ( ((self.R4+self.R3)/self.R4) * self.adc1Volt[i] - (self.R1/(self.R1+self.R2)) * self.vPos ) * ((self.RG1/(self.RG1+self.RG2))**1) * 1E9
             #self.adc2Curr[i] = (1/self.RF) * ((self.R1+self.R2)/self.R2) * ( ((self.R4+self.R3)/self.R4) * self.adc2Volt[i] - (self.R1/(self.R1+self.R2)) * self.vPos ) * ((self.RG1/(self.RG1+self.RG2))**2) * 1E9
-           self.adc0Curr[i] = (-6 * (self.adc0Volt[i] - 2) / 5e5)
-           self.adc1Curr[i] = (-6 * (self.adc1Volt[i] - 2) / 1e7)
-           self.adc2Curr[i] = (-6 * (self.adc2Volt[i] - 2) / 2e8)
+
+           #self.adc0Curr[i] = (-6 * (self.adc0Volt[i] - 2) / 5e5
+           #self.adc0Curr[i] = (-6 * self.adc0Volt[i] + 12) / 500000
+           self.adc0Curr[i] = (-6 * self.adc0Volt[i] + self.vPos) / 500000
+
+           #self.adc1Curr[i] = (-6 * (self.adc1Volt[i] - 2) / 1e7)
+           #self.adc1Curr[i] = (-6 * self.adc1Volt[i] + 12) / 1e7
+           self.adc1Curr[i] = (-6 * self.adc1Volt[i] + self.vPos) / 1e7
+
+           #self.adc2Curr[i] = (-6 * (self.adc2Volt[i] - 2) / 2e8)
+           #self.adc2Curr[i] = (-6 * self.adc2Volt[i] + 12) / 2e8
+           self.adc2Curr[i] = (-6 * self.adc2Volt[i] + self.vPos) / 2e8
 
         #self.adc0CurrMax = (1/self.RF) * ((self.R1+self.R2)/self.R2) * ( ((self.R4+self.R3)/self.R4) * 3.0 - (self.R1/(self.R1+self.R2)) * self.vPos ) * ((self.RG1/(self.RG1+self.RG2))**0) * 1E9
         #self.adc1CurrMax = (1/self.RF) * ((self.R1+self.R2)/self.R2) * ( ((self.R4+self.R3)/self.R4) * 3.0 - (self.R1/(self.R1+self.R2)) * self.vPos ) * ((self.RG1/(self.RG1+self.RG2))**1) * 1E9
@@ -467,6 +480,12 @@ class Sweep():
         self.adc0CurrMin = (-6 * (0 - 2) / 5e5)
         self.adc1CurrMin = (-6 * (0 - 2) / 1e7)
         self.adc2CurrMin = (-6 * (0 - 2) / 2e8)
+
+        '''
+        ADC 0 Min = -24937.5 nA, Max = 22062.5 nA
+        ADC 1 Min = -1234.1 nA, Max = 1050.6 nA
+        ADC 2 Min = -58.8 nA, Max = 50.03 nA
+        '''
 
         return
            
@@ -523,26 +542,22 @@ def readFile(fileName):
                 myPackets.append(packet)
             elif(pcktType == typeFull_Rckt):
                 print(f'Packet type Full - Rocket')
-                print(f'Packet {i}:')
-                print(f'loc = {loc}')
+                print(f'Packet {i}, loc = {loc}')
                 packet = Full_Sweep(count, tInitial, tFinal, pcktType, pyldLen, 0, raw[(loc+lenHedr) : (loc+lenHedr+pyldLen)])
                 myPackets.append(packet)
             elif(pcktType == typeFull_Probe):
                 print(f'Packet type Full')
-                print(f'Packet {i}:')
-                print(f'loc = {loc}')
+                print(f'Packet {i}, loc = {loc}')
                 packet = Full_Sweep(count, tInitial, tFinal, pcktType, pyldLen, 1, raw[(loc + lenHedr): (loc + lenHedr + pyldLen)])
                 myPackets.append(packet)
             elif (pcktType == typeDens_Rckt):
                 print(f'Packet type Dense - Rocket')
-                print(f'Packet {i}:')
-                print(f'loc = {loc}')
+                print(f'Packet {i}, loc = {loc}')
                 packet = Dense_Sweep(count, tInitial, tFinal, pcktType, pyldLen, 0, raw[(loc + lenHedr): (loc + lenHedr + pyldLen)])
                 myPackets.append(packet)
             elif (pcktType == typeDens_Probe):
                 print(f'Packet type Dense')
-                print(f'Packet {i}:')
-                print(f'loc = {loc}')
+                print(f'Packet {i}, loc = {loc}')
                 packet = Dense_Sweep(count, tInitial, tFinal, pcktType, pyldLen, 1, raw[(loc + lenHedr): (loc + lenHedr + pyldLen)])
                 myPackets.append(packet)
             elif(pcktType == typeMed):
@@ -581,8 +596,7 @@ def verifyHeader(sync, pcktType, pyldLen):
         Boolean for if the header is valid
     """
     if(sync[0] != 0x55 or sync[1] != 0x44):
-        print("sync[0] Not 0x55, or sync[1] not 0x44")
-        print(f'sync[0] = {sync[0]}, sync[1] = {sync[1]}')
+        print(f'sync[0] = {sync[0]} (should be 0x55), sync[1] = {sync[1]} (should be 0x44)')
         return False
     if(pcktType == typeSens):
         print("packet type Sensor")
