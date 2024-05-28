@@ -44,7 +44,7 @@ def export_data():
         Current2 - a list of measured currents from the 2 gain stage
     '''
     #mypackets = UDIP_Lib.readFile("UDIP0016.DAT")
-    mypackets = UDIP_Lib.readFile("UDIP114.DAT")  # Update this file name
+    mypackets = UDIP_Lib.readFile("UDIP115.DAT")  # Update this file name
     #ind_sensor, ind_med, ind_large, ind_burst = findIndexs(mypackets)
     ind_sensor, ind_full, ind_dense = findIndexs(mypackets)
 
@@ -94,7 +94,9 @@ def export_data():
                                           'GroundType': pckt.grndType, 'Voltage': pckt.sweep.sweepVoltage.tolist(),
                                           'Current0': pckt.sweep.adc0Curr.tolist(),
                                           'Current1': pckt.sweep.adc1Curr.tolist(),
-                                          'Current2': pckt.sweep.adc2Curr.tolist()}
+                                          'Current2': pckt.sweep.adc2Curr.tolist(),
+                                          'PhotoDiodeInitial': pckt.sweep.phDiodeInitial,
+                                          'PhotoDiodeFinal': pckt.sweep.phDiodeFinal}
     print("Adding dense sweep packets")
     print(f'Index Dense Length = {len(ind_dense)}')
     for i in range(len(ind_dense)):
@@ -103,7 +105,9 @@ def export_data():
                                           'GroundType': pckt.grndType, 'Voltage': pckt.sweep.sweepVoltage.tolist(),
                                           'Current0': pckt.sweep.adc0Curr.tolist(),
                                           'Current1': pckt.sweep.adc1Curr.tolist(),
-                                          'Current2': pckt.sweep.adc2Curr.tolist()}
+                                          'Current2': pckt.sweep.adc2Curr.tolist(),
+                                          'PhotoDiodeInitial': pckt.sweep.phDiodeInitial,
+                                          'PhotoDiodeFinal': pckt.sweep.phDiodeFinal}
 
 #    print("Adding medium sweep packets")
 #    for i in range(len(ind_med)):
@@ -122,7 +126,7 @@ def export_data():
 #        for j in range(10):
 #            json_obj["packets"]["Burst"][i][j] = {'Start' : pckt.tInitial, 'Stop' : pckt.tFinal, 'Count' : pckt.count, 'Voltage' : pckt.sweepArray[j].sweepVoltage.tolist(),
 #                                                'Current0' : pckt.sweepArray[j].adc0Curr.tolist(), 'Current1' : pckt.sweepArray[j].adc1Curr.tolist(), 'Current2' : pckt.sweepArray[j].adc2Curr.tolist() }
-    json_fileName = "2024_packet_25.json"
+    json_fileName = "2024_packet_FMS_1.json"
 
     json_file = open(json_fileName, 'w')
     json.dump(json_obj, json_file, indent=1)

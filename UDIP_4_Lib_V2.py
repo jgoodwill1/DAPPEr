@@ -161,7 +161,9 @@ class Sensor_Packet(Packet):
         #Unpack Temperature data from payload
         tmpD = unpack('<H', self.pyld[20:22])[0]
         self.phDiode = unpack('<H', self.pyld[22:24])[0]  # Check if this is okay
-        self.temperature = tmpD* self.temperatureConversion
+        self.phDiode = self.phDiode * 3.3 / 4095 / 16
+        #self.temperature = tmpD* self.temperatureConversion
+        self.temperature = ((tmpD * 3300 / 4095) - 500) / 10
         #self.temperatureAna = ((tmpA * (3.3/4095.))-0.5)*100
         
             
@@ -190,25 +192,32 @@ class Sensor_Packet(Packet):
         #     self.accY = 0;
         #     self.accZ = 0;
 
-        self.accX = self.accMed[0] * self.SENSITIVITY_ACCELEROMETER_16
-        self.accY = self.accMed[1] * self.SENSITIVITY_ACCELEROMETER_16
-        self.accZ = self.accMed[2] * self.SENSITIVITY_ACCELEROMETER_16
-            
+        # self.accX = self.accMed[0] * self.SENSITIVITY_ACCELEROMETER_16
+        # self.accY = self.accMed[1] * self.SENSITIVITY_ACCELEROMETER_16
+        # self.accZ = self.accMed[2] * self.SENSITIVITY_ACCELEROMETER_16
+        self.accX = self.accMed[0] / 95.43
+        self.accY = self.accMed[1] / 95.43
+        self.accZ = self.accMed[2] / 95.43
         
     
     def calibrateDigGyr(self):
         """Calibrates the spin rate and stores it in respective class attributes in degrees per second"""
-        self.gyroX = self.gyr[0] * self.SENSITIVITY_GYROSCOPE_2000
-        self.gyroY = self.gyr[1] * self.SENSITIVITY_GYROSCOPE_2000
-        self.gyroZ = self.gyr[2] * self.SENSITIVITY_GYROSCOPE_2000
+        # self.gyroX = self.gyr[0] * self.SENSITIVITY_GYROSCOPE_2000
+        # self.gyroY = self.gyr[1] * self.SENSITIVITY_GYROSCOPE_2000
+        # self.gyroZ = self.gyr[2] * self.SENSITIVITY_GYROSCOPE_2000
+        self.gyroX = self.gyr[0] / 936.25
+        self.gyroY = self.gyr[1] / 936.25
+        self.gyroZ = self.gyr[2] / 936.25
         
     
     def calibrateDigMag(self):
         """Calibrates the magnetic field data and stores it in respective class attributes in Gauss"""
-        self.magX = self.mag[0] * self.SENSITIVITY_MAGNETOMETER_4
-        self.magY = self.mag[1] * self.SENSITIVITY_MAGNETOMETER_4
-        self.magZ = self.mag[2] * self.SENSITIVITY_MAGNETOMETER_4
-        
+        # self.magX = self.mag[0] * self.SENSITIVITY_MAGNETOMETER_4
+        # self.magY = self.mag[1] * self.SENSITIVITY_MAGNETOMETER_4
+        # self.magZ = self.mag[2] * self.SENSITIVITY_MAGNETOMETER_4
+        self.magX = self.mag[0] / 409.6
+        self.magY = self.mag[1] / 409.6
+        self.magZ = self.mag[2] / 409.6
     
 
 class Large_Sweep(Packet):
@@ -381,11 +390,18 @@ class Sweep():
         #self.vPos = (self.vPosVal / 16.0) * (3.3 / 4096.0) * (self.RP1 + self.RP2) / self.RP2
         #self.vPos = (self.vPosVal / 3.0)
         #self.vPos = (self.vPosVal / self.nAvg) * (4.75 / 1023) * (self.RP1 + self.RP2) / self.RP2
-        self.vPos = (self.vPosVal / self.nAvg) * (4.0 / 1023) * (self.RP1 + self.RP2) / self.RP2
+        self.vPos = (self.vPosVal / self.nAvg) * (4.75 / 1023) * (self.RP1 + self.RP2) / self.RP2
         #self.vPos = (self.vPosVal / self.nAvg) * (5.0 / 1023) * (self.RP1 + self.RP2) / self.RP2
         # Get new equation from Ranyah
         #self.vNeg = (self.RN1 + self.RN2) / self.RN1 * ( ( (self.vNegVal / 16.0) * (3.3 / 4096.0) ) - (self.vPos ) * (self.RN2 / (self.RN1 + self.RN2)))
         self.vNeg = - (self.vNegVal / 3.0)
+
+        self.phDiodeInitial = unpack('<H', pyld[4:6])[0]
+        self.phDiodeInitial = self.phDiodeInitial * 3.3 / 4095 / 16
+
+        self.phDiodeFinal = unpack('<H', pyld[6:8])[0]
+        self.phDiodeFinal = self.phDiodeFinal * 3.3 / 4095 / 16
+
         
         self.adcDACVal =  tile(0. , nSteps)
         self.adcDACVolt = tile(0., nSteps)
@@ -437,7 +453,7 @@ class Sweep():
     
     def fillVolt(self):
         """Converts a value from ADC to the voltage"""
-        conv = 4.0 / 1023  # 5.0 / 4095.  # need new conversion factor - 5.0 / 1023, 4.76 / 1023, 4.0 / 1023
+        conv = 4.75 / 1023  # 5.0 / 4095.  # need new conversion factor - 5.0 / 1023, 4.76 / 1023, 4.0 / 1023
         for i in range(self.nSteps):
             self.adcDACVolt[i] = self.adcDACVal[i] * conv
             self.adc0Volt[i] = self.adc0Val[i] * conv
