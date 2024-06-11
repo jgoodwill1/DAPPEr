@@ -3,5 +3,6 @@
 *.json
 *.dat
 
-# ignore ALL files in ANY directory named temp
+# ignore ALL files in ANY directory named temp or Analysis
 temp/
+Analysis/

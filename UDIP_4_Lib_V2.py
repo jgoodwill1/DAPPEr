@@ -552,28 +552,28 @@ def readFile(fileName):
         #print(raw[loc+pyldLen:loc+pyldLen+1])
 
         if(verifyHeader(sync, pcktType, pyldLen)):
-            print("valid header YAY")
+            #print("valid header YAY")
             if(pcktType == typeSens):
                 packet = Sensor_Packet(count, tInitial, tFinal, pcktType, pyldLen, raw[(loc+lenHedr) : (loc+lenHedr+pyldLen)] )
                 myPackets.append(packet)
             elif(pcktType == typeFull_Rckt):
-                print(f'Packet type Full - Rocket')
-                print(f'Packet {i}, loc = {loc}')
+                #print(f'Packet type Full - Rocket')
+                #print(f'Packet {i}, loc = {loc}')
                 packet = Full_Sweep(count, tInitial, tFinal, pcktType, pyldLen, 0, raw[(loc+lenHedr) : (loc+lenHedr+pyldLen)])
                 myPackets.append(packet)
             elif(pcktType == typeFull_Probe):
-                print(f'Packet type Full')
-                print(f'Packet {i}, loc = {loc}')
+                #print(f'Packet type Full')
+                #print(f'Packet {i}, loc = {loc}')
                 packet = Full_Sweep(count, tInitial, tFinal, pcktType, pyldLen, 1, raw[(loc + lenHedr): (loc + lenHedr + pyldLen)])
                 myPackets.append(packet)
             elif (pcktType == typeDens_Rckt):
-                print(f'Packet type Dense - Rocket')
-                print(f'Packet {i}, loc = {loc}')
+                #print(f'Packet type Dense - Rocket')
+                #print(f'Packet {i}, loc = {loc}')
                 packet = Dense_Sweep(count, tInitial, tFinal, pcktType, pyldLen, 0, raw[(loc + lenHedr): (loc + lenHedr + pyldLen)])
                 myPackets.append(packet)
             elif (pcktType == typeDens_Probe):
-                print(f'Packet type Dense')
-                print(f'Packet {i}, loc = {loc}')
+                #print(f'Packet type Dense')
+                #print(f'Packet {i}, loc = {loc}')
                 packet = Dense_Sweep(count, tInitial, tFinal, pcktType, pyldLen, 1, raw[(loc + lenHedr): (loc + lenHedr + pyldLen)])
                 myPackets.append(packet)
             elif(pcktType == typeMed):
@@ -593,9 +593,9 @@ def readFile(fileName):
             i+=1
         else:
             loc+=1
-    print()
-    print(f'Generated {i} packets')
-    print()
+    # print()
+    # print(f'Generated {i} packets')
+    # print()
     return myPackets
                 
     
@@ -615,44 +615,44 @@ def verifyHeader(sync, pcktType, pyldLen):
         print(f'sync[0] = {sync[0]} (should be 0x55), sync[1] = {sync[1]} (should be 0x44)')
         return False
     if(pcktType == typeSens):
-        print("packet type Sensor")
+        #print("packet type Sensor")
         if(pyldLen != lenSens):
-            print(f"bad length: {pyldLen} instead of {lenSens}")
+            #print(f"bad length: {pyldLen} instead of {lenSens}")
             return False
         else:
-            print("good length")
+            #print("good length")
             return True
     if (pcktType == typeFull_Probe):
-        print("packet type Full")
+        #print("packet type Full")
         if (pyldLen != lenFull):
-            print(f"bad length: {pyldLen} instead of {lenFull}")
+            #print(f"bad length: {pyldLen} instead of {lenFull}")
             return False
         else:
-            print("good length")
+            #print("good length")
             return True
     if (pcktType == typeFull_Rckt):
-        print("packet type Full - Rocket")
+        #print("packet type Full - Rocket")
         if (pyldLen != lenFull):
-            print(f"bad length: {pyldLen} instead of {lenFull}")
+            #print(f"bad length: {pyldLen} instead of {lenFull}")
             return False
         else:
-            print("good length")
+            #print("good length")
             return True
     if (pcktType == typeDens_Probe):
-        print("packet type Dense")
+        #print("packet type Dense")
         if (pyldLen != lenDense):
-            print(f"bad length: {pyldLen} instead of {lenDense}")
+            #print(f"bad length: {pyldLen} instead of {lenDense}")
             return False
         else:
-            print("good length")
+            #print("good length")
             return True
     if (pcktType == typeDens_Rckt):
-        print("packet type Dense - Rocket")
+        #print("packet type Dense - Rocket")
         if (pyldLen != lenDense):
-            print(f"bad length: {pyldLen} instead of {lenDense}")
+            #print(f"bad length: {pyldLen} instead of {lenDense}")
             return False
         else:
-            print("good length")
+            #print("good length")
             return True
     if(pcktType == typeMed):
         print("packet type Med???")
@@ -841,24 +841,25 @@ def findIndexs(mypackets): #find indexs of various packet types
 #    print(round(pckts[0].sweep.sweepVoltage[i], 2))
 
 
-packets = readFile('UDIP100.dat')
-sensorIndex, fullIndex, denseIndex = findIndexs(packets)
+# packets = readFile('UDIP100.dat')
+# sensorIndex, fullIndex, denseIndex = findIndexs(packets)
+#
+# sweep1 = packets[fullIndex[3]].sweep
+# dacVal = sweep1.adcDACVal
+# swpVolt = sweep1.sweepVoltage
+#
+# sweep2 = packets[denseIndex[0]].sweep
+# dacVal_2 = sweep2.adcDACVal
+# swpVolt2 = sweep2.sweepVoltage
+#
+# print(f'dacVal (full) = {dacVal}')
+# print()
+# print(f'dacVal (dense) = {dacVal_2}')
+#
+# print(f'sweepVoltage (full) = {swpVolt}')
+# print()
+# print(f'sweepVoltage (dense) = {swpVolt2}')
 
-sweep1 = packets[fullIndex[3]].sweep
-dacVal = sweep1.adcDACVal
-swpVolt = sweep1.sweepVoltage
-
-sweep2 = packets[denseIndex[0]].sweep
-dacVal_2 = sweep2.adcDACVal
-swpVolt2 = sweep2.sweepVoltage
-
-print(f'dacVal (full) = {dacVal}')
-print()
-print(f'dacVal (dense) = {dacVal_2}')
-
-print(f'sweepVoltage (full) = {swpVolt}')
-print()
-print(f'sweepVoltage (dense) = {swpVolt2}')
 
 # for i in range(len(dacVal)):
 #     if(dacVal[i] == dacVal_2[i]):
