@@ -279,17 +279,33 @@ def Plot_Sensors(start, stop, accel=False, accelH=False, gyro=False, magno=False
 
 # 3. Packet Exploration
 
-def Plot_sweep(time=None, index=None, fit=False, hysteresis=False):
+def Plot_sweep(time=None, index=None, isDense=False, fit=False, hysteresis=False):
     Packet_test()  # load data only if needed
     if (time != None) or (index != None):
-        if index == None:
-            # ind = find_closest(time, ind_medium)
-            ind = find_closest(time, ind_full)
-        else:
-            ind = index
-        # ind = ind_medium[ind] #get index of medium packet
-        ind = ind_full[ind]  # get index of full packet
-        packet = UDIP_packets[ind]  # get full packet
+
+        try:
+            if isDense:
+                if index == None:
+                    # ind = find_closest(time, ind_medium)
+                    ind = find_closest(time, ind_dense)
+                else:
+                    ind = index
+                # ind = ind_medium[ind] #get index of medium packet
+                ind = ind_dense[ind]  # get index of full packet
+                print(f"Plotting a Dense sweep - packet {ind}")
+
+            elif not isDense:
+                if index == None:
+                    ind = find_closest(time, ind_full)
+                else:
+                    ind = index
+                ind = ind_full[ind]  # get index of full packet
+                print(f"Plotting a Full sweep - packet {ind}")
+
+            packet = UDIP_packets[ind]  # get full or dense packet
+        except:
+            print(f"Error in confirming either a Full or Dense Sweep.")
+            return
 
         # adc0
         x0 = packet.sweep.sweepVoltage
@@ -346,14 +362,24 @@ def Plot_sweep(time=None, index=None, fit=False, hysteresis=False):
 
 def Plot_Many_Sweeps():
     Packet_test()  # load data only if needed
-    #print("The number of medium sweeps is " + str(len(ind_medium)))
+
+    # print("The number of medium sweeps is " + str(len(ind_medium)))
     print("The number of full sweeps is " + str(len(ind_full)))
+    print("The number of dense sweeps is " + str(len(ind_dense)))
+
     while (True):
         cont = input("enter q to end the loop")
         if (cont == "q"):
             break
         #ind = int(input("enter the integer index of the medium sweep you want to see "))
-        ind = int(input("enter the integer index of the full sweep you want to see "))
+        ind = int(input("enter the integer index of the sweep you want to see "))
+
+        isDense = None
+        if ind in ind_dense:
+            isDense = True
+        elif ind in ind_full:
+            isDense = False
+
         f = input("enter t if you want the data to be fit")
         if (f == "t"):
             fit = True
@@ -364,7 +390,9 @@ def Plot_Many_Sweeps():
             hyst = True
         else:
             hyst = False
-        Plot_sweep(time=None, index=ind, fit=fit, hysteresis=hyst)
+
+        Plot_sweep(time=None, index=ind, isDense=isDense, fit=fit, hysteresis=hyst)
+
 
 
 # def Plot_constant(time=None, index=None):
@@ -553,7 +581,7 @@ def find_closest(time, array):
             return i
 
 
-#Plot_sweep(index=100)
+Plot_sweep(index=150)
 # Plot_Many_Sweeps()
 
 Plot_Percentiles(0,300)

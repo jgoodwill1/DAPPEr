@@ -593,6 +593,7 @@ def readFile(fileName):
             i+=1
         else:
             loc+=1
+            print(f"BAD HEADER, packet #{i}, loc = {loc}.")
     # print()
     # print(f'Generated {i} packets')
     # print()
