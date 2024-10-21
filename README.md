@@ -10,3 +10,5 @@ Amanda wuz here too
 Double R Jarrod finally showed up
 
 Gia Scozzaro is up in this jawn
+
+Corey Mitterer = Here
