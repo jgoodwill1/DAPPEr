@@ -3,10 +3,9 @@ from setuptools import setup
 setup( 
 	name='DAPPEr', 
 	version='0.1', 
-	packages = ['DAPPEr'],
-	description='A sample Python package', 
-	author='John Doe', 
-	author_email='jdoe@example.com', 
+	description='Package for UDIP/DAPPEr Analysis', 
+	author='Joshua Goodwill', 
+	author_email='goodwill@udel.edu', 
 	install_requires=[ 
 		'numpy', 
 		'pandas', 
