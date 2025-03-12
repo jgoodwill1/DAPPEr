@@ -37,3 +37,7 @@ For students:
 add jupyter notebooks to /students
 
 For adding to src, discuss with Josh to add more functionality
+
+For results, please have figures placed into /figs with the corresponding mission
+
+For publishable figures, please place into /figs/UDIP_AJP
