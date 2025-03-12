@@ -1,0 +1,9 @@
+Metadata-Version: 2.1
+Name: DAPPEr
+Version: 0.1
+Summary: Package for UDIP/DAPPEr Analysis
+Author: Joshua Goodwill
+Author-email: goodwill@udel.edu
+License-File: LICENSE
+Requires-Dist: numpy
+Requires-Dist: pandas
