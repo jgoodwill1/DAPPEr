@@ -1,0 +1,9 @@
+Metadata-Version: 2.1
+Name: src
+Version: 0.1
+Summary: A sample Python package
+Author: John Doe
+Author-email: jdoe@example.com
+License-File: LICENSE
+Requires-Dist: numpy
+Requires-Dist: pandas

@@ -1,0 +1,6 @@
+Fitting
+RockSat_json
+UDIP_Lib
+grnd_sw
+operations
+pckt
