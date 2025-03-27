@@ -17,9 +17,9 @@ class pck:
         self.grnd = data['GroundType']
         self.iv = pd.DataFrame({
                     'V': np.array(self.data['Voltage'][6:]), 
-                    'I0': -np.array(self.data['Current0'][6:]), 
-                    'I1': -np.array(self.data['Current1'][6:]), 
-                    'I2': -np.array(self.data['Current2'][6:])
+                    'I0': -np.array(self.data['Current0'][6:]) * 10**9, 
+                    'I1': -np.array(self.data['Current1'][6:]) * 10**9, 
+                    'I2': -np.array(self.data['Current2'][6:]) * 10**9
                     })
     def VP(self):
         self.iv['dI_dV'] = np.abs(self.iv['I0'].diff())

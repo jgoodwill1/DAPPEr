@@ -29,7 +29,7 @@ This will allow all modules in src to be attached to python
 
 Call this in python by:
 
-import <module>
+import "module"
 
 Ex: import fitting
 
