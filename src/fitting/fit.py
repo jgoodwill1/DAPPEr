@@ -27,7 +27,7 @@ popt(array); optimal values for parameters
 V0   (float) = popt[0]; floating potential [V]
 VP   (float) = popt[1]; plasma potential [V]
 m1   (float) = popt[2]; slope of linear fit
-y_int(float) = popt[3]; y-intercept of linear fit
+b    (float) = popt[3]; y-intercept of linear fit
 ne   (float) = popt[4]; electron density [cm^{-3}]
 Te   (float) = popt[5]; electron temperature [K]
 
@@ -38,7 +38,7 @@ Intial guesses/[bounds]:
     m1    = 10          ;       [-1000      :        1000]
     y_int = 80          ;       [-1000      :        1000]
     ne    = 5*10^10     ;       [5          :  5*(10**15)]
-    Te    = 700         ;       [0          :        5000]
+    Te    = 1500        ;       [300        :        5000]
 
 pcov(2D np.array); covariance of popt array
 '''
@@ -50,9 +50,9 @@ def gen_fit(V_arr, I_arr, proc = False):
         V_proc, I_proc = data_processing(V_arr, I_arr)
     else:
         V_proc, I_proc = V_arr, I_arr
-    g = [ 2,   2,    10,    80, 5*(10**10),   700]    #intial guess
+    g = [ 2,   2,    10,    80, 5*(10**10),  1500]    #intial guess
     b = [
-        (-3,   2, -1000, -1000,  5*(10**1),     0),
+        (-3,   2, -1000, -1000,  5*(10**1),   300),
         ( 3,   5,  1000,  1000, 5*(10**15),  5000)
         ] #bounds
     popt, pcov = curve_fit(model,V_proc, I_proc, g, bounds=b)
@@ -118,7 +118,7 @@ def sqrt(x, ne, Te, V0):# square root
 
 '''
 def data_processing(V, I)
-Processes Voltage and Current arrays to reduce points for fitting algorithm.
+Processes Voltage and Current arrays for fitting algorithm.
 Removes nan values and sets them to 0.
 
 input:
@@ -130,7 +130,7 @@ V_proc (np.array); processed Voltage array
 I_proc (np.array); processed Current array
 '''
 
-def data_processing(V, I):
+def data_processing(V, I):#remove data points below -2 and above the peak to reduce datapoints going to the fitting routine
     V_proc = np.nan_to_num(x_raw, nan=0.0)
     I_proc = np.nan_to_num(y_raw, nan=0.0)
     return V_proc, I_proc
